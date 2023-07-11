@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using GiveMeOpop;
 
 namespace GenshinStart
 {
@@ -23,13 +25,25 @@ namespace GenshinStart
     {
         public MainWindow()
         {
+            FileInfo genshin_video = new FileInfo("genshin_start.mp4");
+            
+            using (var vs = genshin_video.OpenWrite())
+            {
+                vs.Write(Properties.Resources.genshin_start, 0, Properties.Resources.genshin_start.Length); 
+            }
+
             InitializeComponent();
 
-            File.WriteAllBytes("genshin_start.mp4", Properties.Resources.genshin_start);
+            player.Source = new Uri(genshin_video.FullName);
         }
 
         private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
+            Process? p = App.StartGenshinGame(App.GenshinPath);
+
+            if (p != null)
+                NativeMethods.DontStopProcess(p);
+
             Application.Current.Shutdown();
         }
 
