@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.Win32;
+using GiveMeOpop;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
@@ -22,9 +22,22 @@ namespace GenshinStart
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            NativeMethods.RtlAdjustPrivilege(20, true, false, out _);
+
+#if DEBUG
+            if (true)
+#else
             if (GetGenshinPath() is string genshinPath)
+#endif
             {
+#if DEBUG
+                GenshinPath = "cmd.exe";
+#else
                 GenshinPath = genshinPath;
+#endif
+
+
+
 
                 MessageBox.Show("我超, 原!\n这就帮你打开原神, 如果你关了, 你电脑就会蓝屏.", "我超, 原!", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -61,7 +74,7 @@ namespace GenshinStart
 
         public static string? GetGenshinPath()
         {
-            var uninstall = Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall");
+            var uninstall = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall");
             var subkeyNames = uninstall.GetSubKeyNames();
 
             try
@@ -86,7 +99,14 @@ namespace GenshinStart
             if (genshinPath == null)
                 return null;
 
+#if DEBUG
+            var startExe = "C:\\Windows\\System32\\cmd.exe";
+#else
             var startExe = Path.Combine(genshinPath, @"Genshin Impact Game\YuanShen.exe");
+#endif
+
+
+
             if (!File.Exists(startExe))
                 return null;
 
